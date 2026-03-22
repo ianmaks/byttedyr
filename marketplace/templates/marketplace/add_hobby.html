@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Add Hobby - byttedyr{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h1 class="text-2xl font-bold text-warm-text">Add new hobby</h1>
+        <p class="text-warm-muted mt-1">Create a hobby that others can vote for.</p>
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_name" class="block text-sm font-medium text-warm-text mb-1">Name</label>
+                <input
+                    type="text"
+                    id="id_name"
+                    name="name"
+                    value="{{ form.name.value|default:'' }}"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-warm-text"
+                    required
+                >
+                {% if form.name.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_output_type" class="block text-sm font-medium text-warm-text mb-1">Type</label>
+                <select
+                    id="id_output_type"
+                    name="output_type"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-warm-text bg-white"
+                >
+                    {% for value, label in form.output_type.field.choices %}
+                    <option value="{{ value }}" {% if form.output_type.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.output_type.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.output_type.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit" class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition">
+                    Add hobby
+                </button>
+                <a href="{% url 'hobbies' %}" class="text-sm text-warm-muted hover:text-warm-text">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -4,16 +4,22 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.http import require_POST
 from django.contrib import messages
-from .models import Hobby, Vote, Offering, Trade
-from .forms import OfferingForm, TradeForm
-from django.db.models import Count, Case, When, Value, IntegerField
+from django.contrib.auth.decorators import login_required
+from .models import Hobby, Vote, Offering, Trade, Gang
+from .forms import OfferingForm, TradeForm, GangForm, HobbyForm
+from django.db.models import Count, Case, When, Value, IntegerField, Q
 
 
 
 # Create your views here.
 def index(request):
-    all_offerings = Offering.objects.annotate(
+    gang_filter_active = request.GET.get("gang_filter") == "1"
+    requested_gang_ids = request.GET.getlist("gangs")
+    selected_gang_ids = []
+
+    offerings = Offering.objects.annotate(
         priority=Case(
             When(stock_status__in=['I', 'D'], then=Value(1)),
             When(stock_status='O', then=Value(2)),
@@ -22,14 +28,66 @@ def index(request):
         ),
         vote_count=Count('hobby__votes')
     ).order_by('priority', '-vote_count')
+
+    gangs = Gang.objects.none()
+    if request.user.is_authenticated:
+        gangs = Gang.objects.filter(members=request.user)
+
+        for gang_id in requested_gang_ids:
+            try:
+                selected_gang_ids.append(int(gang_id))
+            except ValueError:
+                continue
+
+        if gang_filter_active:
+            if selected_gang_ids:
+                valid_gang_ids = gangs.filter(id__in=selected_gang_ids).values_list('id', flat=True)
+                offerings = offerings.filter(owner__gangs__id__in=valid_gang_ids).distinct()
+            else:
+                offerings = offerings.none()
+
+    offerings_in_stock = offerings.filter(stock_status = 'I')
+    offerings_on_demand = offerings.filter(stock_status = 'D')
+    offerings_out_of_stock = offerings.filter(stock_status = 'O')
+
     template = loader.get_template("marketplace/index.html")
-    context = {"all_offerings": all_offerings}
+    context = {
+        "all_offerings"          :   offerings,
+        "offerings_in_stock"     :   offerings_in_stock,
+        "offerings_on_demand"    :   offerings_on_demand,
+        "offerings_out_of_stock" :   offerings_out_of_stock,
+        "gangs"                  :   gangs,
+        "selected_gang_ids"      :   selected_gang_ids,
+        "gang_filter_active"     :   gang_filter_active,
+    }
     return HttpResponse(template.render(context, request))
 
 def hobbies(request):
-    all_hobbies = Hobby.objects.annotate(vote_count=Count('votes')).order_by("-vote_count")
+    selected_gang = request.GET.get("gang", "all")
+
+    user_gangs = Gang.objects.none()
+    if request.user.is_authenticated:
+        user_gangs = Gang.objects.filter(members=request.user)
+
+    all_hobbies = Hobby.objects.annotate(vote_count=Count('votes'))
+
+    if selected_gang != "all":
+        try:
+            selected_gang_id = int(selected_gang)
+            selected_gang_obj = user_gangs.get(id=selected_gang_id)
+            all_hobbies = Hobby.objects.annotate(
+                vote_count=Count('votes', filter=Q(votes__user__in=selected_gang_obj.members.all()))
+            )
+        except (ValueError, Gang.DoesNotExist):
+            selected_gang = "all"
+
+    all_hobbies = all_hobbies.order_by("-vote_count")
     template = loader.get_template("marketplace/hobbies.html")
-    context = {"all_hobbies": all_hobbies}
+    context = {
+        "all_hobbies": all_hobbies,
+        "user_gangs": user_gangs,
+        "selected_gang": selected_gang,
+    }
     return HttpResponse(template.render(context, request))
 
 
@@ -83,6 +141,22 @@ def add_offering(request):
     else:
         form = OfferingForm()
     template = loader.get_template("marketplace/add_offering.html")
+    context = {'form': form}
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+def add_hobby(request):
+    if request.method == 'POST':
+        form = HobbyForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Hobby added successfully.')
+            return redirect('hobbies')
+    else:
+        form = HobbyForm()
+
+    template = loader.get_template("marketplace/add_hobby.html")
     context = {'form': form}
     return HttpResponse(template.render(context, request))
 
@@ -150,5 +224,50 @@ def offering_detail(request, offering_id):
         'rejected_trades': rejected_trades,
         'trade_form': trade_form,
         'my_trades': my_trades,
+    }
+    return HttpResponse(template.render(context, request))
+
+def gangs(request):
+    gangs_led = Gang.objects.filter(creator=request.user)
+    gangs_member = Gang.objects.filter(members=request.user).exclude(creator=request.user)
+    template = loader.get_template("marketplace/gangs.html")
+    context = {
+        'gangs_led': gangs_led,
+        'gangs_member': gangs_member,
+    }
+    return HttpResponse(template.render(context, request))
+
+
+@login_required
+@require_POST
+def leave_gang(request, gang_id):
+    gang = Gang.objects.filter(id=gang_id, members=request.user).first()
+    if gang:
+        gang.members.remove(request.user)
+        messages.info(request, f'You left {gang.name}.')
+    return redirect('gangs')
+
+
+@login_required
+def create_gang(request):
+    if request.method == 'POST':
+        if 'cancel' in request.POST:
+            return redirect('gangs')
+
+        form = GangForm(request.POST, user=request.user)
+        if form.is_valid():
+            gang = form.save(commit=False)
+            gang.creator = request.user
+            gang.save()
+            form.save_m2m()
+            gang.members.add(request.user)
+            messages.success(request, 'Gang created successfully.')
+            return redirect('gangs')
+    else:
+        form = GangForm(user=request.user)
+
+    template = loader.get_template("marketplace/create_gang.html")
+    context = {
+        'form': form,
     }
     return HttpResponse(template.render(context, request))

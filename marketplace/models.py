@@ -109,3 +109,22 @@ class Trade(models.Model):
         verbose_name = "Trade"
         verbose_name_plural = "Trades"
     
+class Gang(models.Model):
+        name = models.CharField(max_length=50)
+        description = models.CharField(max_length=100)
+        creator = models.ForeignKey(
+            settings.AUTH_USER_MODEL,
+            on_delete=models.SET_NULL,
+            null=True,
+            blank=True,
+            related_name='led_gangs'
+        )
+
+        members = models.ManyToManyField(
+            settings.AUTH_USER_MODEL,
+            related_name='gangs',
+            blank=True
+        )
+
+        def __str__(self):
+            return self.name

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Create Gang - byttedyr{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto">
+    <div class="bg-white rounded-xl shadow-sm p-6">
+        <h1 class="text-2xl font-bold text-warm-text">Create new gang</h1>
+        <p class="text-warm-muted mt-1">Set a name and description for your gang.</p>
+
+        <form method="post" class="mt-6 space-y-4">
+            {% csrf_token %}
+
+            <div>
+                <label for="id_name" class="block text-sm font-medium text-warm-text mb-1">Name</label>
+                <input
+                    type="text"
+                    id="id_name"
+                    name="name"
+                    value="{{ form.name.value|default:'' }}"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-warm-text"
+                    required
+                >
+                {% if form.name.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="id_description" class="block text-sm font-medium text-warm-text mb-1">Description</label>
+                <input
+                    type="text"
+                    id="id_description"
+                    name="description"
+                    value="{{ form.description.value|default:'' }}"
+                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-warm-text"
+                    required
+                >
+                {% if form.description.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-warm-text mb-2">Members</label>
+                {% if form.members.field.queryset %}
+                <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {% for member in form.members.field.queryset %}
+                    <label class="flex items-center gap-2 text-sm text-warm-text">
+                        <input
+                            type="checkbox"
+                            name="members"
+                            value="{{ member.id }}"
+                            class="rounded border-gray-300 text-terra-400 focus:ring-terra-400"
+                            {% if form.members.value and member.id|stringformat:'s' in form.members.value %}checked{% endif %}
+                        >
+                        <span>{{ member.username }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-warm-muted">No other users available to add.</p>
+                {% endif %}
+                {% if form.members.errors %}
+                <p class="text-sm text-red-600 mt-1">{{ form.members.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex items-center gap-3 pt-2">
+                <button type="submit" class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition">
+                    Create gang
+                </button>
+                <button type="submit" name="cancel" value="1" formnovalidate class="text-sm text-warm-muted hover:text-warm-text">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -17,38 +17,85 @@
 
     <!-- Offerings List -->
     {% if all_offerings %}
-    <div class="space-y-4">
-        {% for offering in all_offerings %}
-        <a href="{% url 'offering_detail' offering.id %}" class="block">
-            <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
-                        <div class="flex items-center gap-3 mt-2">
-                            <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
-                            <span class="text-warm-muted">·</span>
-                            <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+    
+    <div class="grid grid-cols-3 gap-6">
+        <div>
+            <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
+                In Stock
+            </span>
+            <div class="space-y-4">
+                {% if offerings_in_stock %}
+                    {% for offering in offerings_in_stock %}
+                    <a href="{% url 'offering_detail' offering.id %}" class="block">
+                        <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
+                                    <div class="flex items-center gap-3 mt-2">
+                                        <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
+                                        <span class="text-warm-muted">·</span>
+                                        <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        {% if offering.stock_status == 'I' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
-                            In Stock
-                        </span>
-                        {% elif offering.stock_status == 'O' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
-                            Out of Stock
-                        </span>
-                        {% elif offering.stock_status == 'D' %}
-                        <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
-                            Made on Demand
-                        </span>
-                        {% endif %}
-                    </div>
-                </div>
+                    </a>
+                    {% endfor %}
+                {% endif %}
             </div>
-        </a>
-        {% endfor %}
+        </div>
+
+        <div>
+            <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700">
+                Made on Demand
+            </span>
+
+            <div class="space-y-4">
+                {% if offerings_in_stock %}
+                        {% for offering in offerings_on_demand %}
+                        <a href="{% url 'offering_detail' offering.id %}" class="block">
+                            <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
+                                        <div class="flex items-center gap-3 mt-2">
+                                            <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
+                                            <span class="text-warm-muted">·</span>
+                                            <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+        <div>
+            <span class="px-3 py-1 text-sm rounded-full bg-red-100 text-red-700">
+                Out of Stock
+            </span>
+            <div class="space-y-4">
+                {% if offerings_in_stock %}
+                        {% for offering in offerings_out_of_stock %}
+                        <a href="{% url 'offering_detail' offering.id %}" class="block">
+                            <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
+                                        <div class="flex items-center gap-3 mt-2">
+                                            <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
+                                            <span class="text-warm-muted">·</span>
+                                            <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                {% endif %}
+            </div>
+        </div>
     </div>
     {% else %}
     <div class="bg-white rounded-xl shadow-sm p-8 text-center">

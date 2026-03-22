@@ -86,11 +86,15 @@ WSGI_APPLICATION = "market.wsgi.application"
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    "default": dj_database_url.config(
-        # Replace this value with your local database's connection string.
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600,
-    )
+    # "default": dj_database_url.config(
+    #     # Replace this value with your local database's connection string.
+    #     default=os.environ.get("DATABASE_URL"),
+    #     conn_max_age=600,
+    # )
+    "default": {
+    "ENGINE": "django.db.backends.sqlite3",
+    "NAME": "mydatabase",
+    }
 }
 
 

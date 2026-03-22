@@ -5,9 +5,16 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Page Header -->
-    <div>
+    <div class="flex items-start justify-between gap-4">
         <h1 class="text-2xl font-bold text-warm-text">Hobbies</h1>
+
         <p class="text-warm-muted mt-1">Vote for hobbies you're interested in</p>
+                        {% if user.is_authenticated %}
+        <a href="{% url 'add_hobby' %}"
+           class="px-4 py-2 bg-terra-400 text-white rounded-lg hover:bg-terra-500 transition">
+            + Add Hobby
+        </a>
+        {% endif %}
     </div>
 
     <!-- Hobbies List -->
