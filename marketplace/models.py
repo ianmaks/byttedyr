@@ -84,6 +84,11 @@ class Offering(models.Model):
     
     def save(self, *args, **kwargs):
         if self.pk is None and self.photo:
+            if self.photo.name.lower().endswith(('.heic', '.heif')):
+                print("HEIC detected - keeping original (Render limitation)")
+                super().save(*args, **kwargs)
+                return
+    
             image = Image.open(self.photo) 
                 
             if image.mode in ("RGBA", "P", "LA"):
