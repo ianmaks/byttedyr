@@ -41,10 +41,12 @@
     <nav class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-4xl mx-auto px-4">
             <div class="flex items-center justify-between h-16">
-                <!-- Logo -->
-                <a href="{% url 'index' %}" class="text-xl font-bold text-terra-400 hover:text-terra-500">
-                    byttedyr
-                </a>
+                <div class="flex items-center gap-2">
+                    <img src="{% static 'marketplace/figures/Logo.png' %}" alt="byttedyr.no" class="h-12 w-auto">
+                    <a href="{% url 'index' %}" class="text-xl font-bold text-terra-400 hover:text-terra-500">
+                        byttedyr
+                    </a>
+                </div>
 
                 <!-- Nav Links -->
                 <div class="flex items-center space-x-6">
