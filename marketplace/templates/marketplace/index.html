@@ -18,7 +18,7 @@
     <!-- Offerings List -->
     {% if all_offerings %}
     
-    <div class="grid grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6">
         <div>
             <span class="px-3 py-1 text-sm rounded-full bg-green-100 text-green-700">
                 In Stock
@@ -28,13 +28,21 @@
                     {% for offering in offerings_in_stock %}
                     <a href="{% url 'offering_detail' offering.id %}" class="block">
                         <div class="bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition cursor-pointer">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h2 class="text-lg font-semibold text-warm-text">{{ offering.name }}</h2>
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <span class="text-sm text-warm-muted">{{ offering.hobby.name }}</span>
-                                        <span class="text-warm-muted">·</span>
-                                        <span class="text-sm text-warm-muted">by {{ offering.owner.username }}</span>
+                            <div class="flex items-start gap-4">
+                                {% if offering.photo %}
+                                <picture class="flex-shrink-0 w-20 h-20 rounded-lg shadow-sm overflow-hidden mr-4">
+                                    <source srcset="{{ offering.photo.url }}" type="image/avif">
+                                    <img src="{{ offering.photo.url }}" alt="{{ offering.name }}" 
+                                        class="w-full h-full object-cover">
+                                </picture>
+                                {% endif %}
+                                
+                                <div class="flex-1 min-w-0">
+                                    <h2 class="text-lg font-semibold text-warm-text mb-2">{{ offering.name }}</h2>
+                                    <div class="flex items-center gap-3 text-sm text-warm-muted">
+                                        <span>{{ offering.hobby.name }}</span>
+                                        <span>·</span>
+                                        <span>by {{ offering.owner.username }}</span>
                                     </div>
                                 </div>
                             </div>

@@ -30,7 +30,14 @@
         </div>
 
         <p class="text-warm-text mb-4">{{ offering.description }}</p>
-
+        {% if offering.photo %}   
+            <picture class="block max-w-full mr-auto ml-0 mb-6">
+                <source srcset="{{ offering.photo.url }}" type="image/avif">
+                <img src="{{ offering.photo.url }}" alt="{{ offering.name }}" 
+                    class="w-full max-w-md mr-auto ml-0 rounded-xl shadow-md object-cover"
+                    style="aspect-ratio: 4/3; height: auto;">
+            </picture>
+        {% endif %}            
         <div class="flex items-center gap-4 text-sm text-warm-muted">
             <span class="px-3 py-1 rounded-full bg-terra-100 text-terra-500">{{ offering.hobby.name }}</span>
             <span>{{ offering.get_offering_type_display }}</span>

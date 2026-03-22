@@ -132,7 +132,7 @@ def user(request, user_id):
 
 def add_offering(request):
     if request.method == 'POST':
-        form = OfferingForm(request.POST)
+        form = OfferingForm(request.POST, request.FILES)
         if form.is_valid():
             offering = form.save(commit=False)
             offering.owner = request.user

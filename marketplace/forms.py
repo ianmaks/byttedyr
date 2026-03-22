@@ -5,7 +5,7 @@ from .models import Offering, Trade, Gang, Hobby
 class OfferingForm(forms.ModelForm):
     class Meta:
         model = Offering
-        fields = ['offering_type', 'name', 'hobby', 'description', 'stock_status']
+        fields = ['offering_type', 'name', 'hobby', 'description', 'stock_status', 'photo']
 
 class TradeForm(forms.ModelForm):
     class Meta:

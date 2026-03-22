@@ -14,6 +14,9 @@ import os
 from pathlib import Path
 import os
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 import dj_database_url
 import environ
 
@@ -94,7 +97,7 @@ DATABASES = {
     # "default": {
     # "ENGINE": "django.db.backends.sqlite3",
     # "NAME": "mydatabase",
-    }
+    # }
 }
 
 
@@ -150,4 +153,7 @@ if not DEBUG:
     # Enable the WhiteNoise storage backend, which compresses static files to reduce disk use
     # and renames the files with unique names for each version to support long-term caching
     STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 

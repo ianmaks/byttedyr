@@ -2,7 +2,10 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from django.conf import settings
-
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+import os
 
 class User(models.Model):
     name = models.CharField(max_length=64)
@@ -77,6 +80,27 @@ class Offering(models.Model):
         blank=True,
         null=True,
     )
+    photo = models.ImageField(upload_to='offerings/', blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if self.pk is None and self.photo:
+            image = Image.open(self.photo) 
+                
+            if image.mode in ("RGBA", "P", "LA"):
+                image = image.convert("RGB")
+            elif image.mode != "RGB":
+                image = image.convert("RGB")
+                
+            image.thumbnail((600, 600), Image.Resampling.LANCZOS)
+                
+            output = BytesIO()
+            image.save(output, format='AVIF', quality=50, speed=8)
+            output.seek(0)
+                
+            original_name = os.path.splitext(os.path.basename(self.photo.name))[0]
+            self.photo = ContentFile(output.getvalue(), f"{original_name}.avif")
+        
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Offering"
