@@ -58,12 +58,6 @@
                        class="text-warm-text hover:text-terra-400 {% if request.resolver_match.url_name == 'hobbies' %}border-b-2 border-terra-400{% endif %}">
                         Hobbies
                     </a>
-                    {% if user.is_authenticated %}
-                    <a href="{% url 'add_offering' %}"
-                       class="text-warm-text hover:text-terra-400 {% if request.resolver_match.url_name == 'add_offering' %}border-b-2 border-terra-400{% endif %}">
-                        Add Offering
-                    </a>
-                    {% endif %}
                 </div>
 
                 <!-- User Menu -->
